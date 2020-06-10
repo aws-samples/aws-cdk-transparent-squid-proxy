@@ -19,7 +19,6 @@ The `cdk.json` file requires the following values:
  * `region`:     The AWS region to deploy the stacks
  * `vpc_cidr`:   The CIDR range to use for the VPC
 
-
 ## Deploying the CDK app
 1. `cdk bootstrap`              Initalise assets before deploy
 2. `cdk synth`                  Emit the synthesized CloudFormation template
@@ -34,3 +33,36 @@ The `cdk.json` file requires the following values:
    2. `curl https://www.amazon.com`
    3. `curl http://calculator.s3.amazonaws.com/index.html`
    4. `curl https://calculator.s3.amazonaws.com/index.html`
+
+## General CDK help
+This project is set up like a standard Python project.  The initialization
+process also creates a virtualenv within this project, stored under the .env
+directory.  To create the virtualenv it assumes that there is a `python3`
+(or `python` for Windows) executable in your path with access to the `venv`
+package. If for any reason the automatic creation of the virtualenv fails,
+you can create the virtualenv manually.
+
+To manually create a virtualenv on MacOS and Linux:
+
+```
+$ python -m venv .env
+```
+
+After the init process completes and the virtualenv is created, you can use the following
+step to activate your virtualenv.
+
+```
+$ source .env/bin/activate
+```
+
+If you are a Windows platform, you would activate the virtualenv like this:
+
+```
+% .env\Scripts\activate.bat
+```
+
+Once the virtualenv is activated, you can install the required dependencies.
+
+```
+$ pip install -r requirements.txt
+```
