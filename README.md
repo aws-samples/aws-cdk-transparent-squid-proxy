@@ -122,3 +122,6 @@ A CDK application can be destroyed by using the following command:
 $ cdk destroy "*"`
 ```
 When asked to confirm the deletion of the 3 stacks, select “`y`”.
+
+## License
+This library is licensed under the MIT-0 License. See the [LICENSE](LICENSE) file.

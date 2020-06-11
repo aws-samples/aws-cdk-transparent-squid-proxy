@@ -4,7 +4,7 @@
     "@aws-cdk/core:enableStackNameDuplicates": "true",
     "aws-cdk:enableDiffNoFail": "true",
     "region": "ap-southeast-1",
-    "account": "991510950534",
+    "account": "xxxxxxxxxxxx",
     "vpc_cidr": "10.0.0.0/16"
   }
 }
