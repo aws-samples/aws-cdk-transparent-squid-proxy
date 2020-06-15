@@ -19,7 +19,7 @@ class VPCStack(core.Stack):
                 ), 
                 ec2.SubnetConfiguration(
                 subnet_type=ec2.SubnetType.ISOLATED,
-                name="Private",
+                name="Isolated",
                 cidr_mask=24
                 )
             ]

@@ -17,7 +17,7 @@ class SquidLambdaConstruct(core.Construct):
           managed_policies=[iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaBasicExecutionRole")]
         )
         
-        # Add policies to allow Lambda that allow it to update route tables of the VPC to point to a health Squid instance ENI
+        # Add policies to allow Lambda that allow it to update route tables of the VPC to point to a healthy Squid instance ENI
         lambda_iam_role.add_to_policy(statement= iam.PolicyStatement(effect=iam.Effect.ALLOW,
             actions=['ec2:ModifyInstanceAttribute',
                 'autoscaling:Describe*',

@@ -13,7 +13,7 @@ class SquidAsgConstruct(core.Construct):
     def __init__(self, scope: core.Construct, id: str, vpc: ec2.Vpc, region: str) -> None:
         super().__init__(scope, id)
         
-         # create an IAM role to attach to the squid instance instances
+         # create an IAM role to attach to the squid instances
         squid_iam_role = iam.Role(self,"squid-role", 
           assumed_by=iam.ServicePrincipal("ec2.amazonaws.com"),
           managed_policies=[iam.ManagedPolicy.from_aws_managed_policy_name("CloudWatchAgentServerPolicy"),
@@ -58,7 +58,6 @@ class SquidAsgConstruct(core.Construct):
                     max_capacity=1,
                     min_capacity=1,
                     machine_image=amazon_linux_2_ami,
-                    #user_data=squid_user_data,
                     role=squid_iam_role,
                     vpc_subnets=ec2.SubnetSelection(
                         availability_zones=[az],
