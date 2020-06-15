@@ -20,7 +20,7 @@ A CloudWatch Alarm is used to monitor the status of the squid instance. A change
 
  The Auto Scaling group replaces the unhealthy instance with a healthy Squid instance. Once the alarm status changes from `ALARM` back to `OK`, the Lambda function is triggered to update the route table to this instance. 
 
-#### CDK App
+#### CDK Recap
 
 A quick recap: The  AWS CDK allows developers use the CDK framework in one of the supported programming languages to define reusable cloud components called [constructs](https://docs.aws.amazon.com/cdk/latest/guide/constructs.html), which are composed together into [stacks](https://docs.aws.amazon.com/cdk/latest/guide/stacks.html), forming a ["CDK app"](https://docs.aws.amazon.com/cdk/latest/guide/apps.html).
 
@@ -29,7 +29,7 @@ This CDK app includes 3 stacks:
  * **Squid stack**:           Squid instances in Auto Scaling Groups with required components to achieve high availablity. 
  * **Test instance stack**:   A test instance that can be accessed using AWS Systems Manager Session Manager
 
-##### Context
+##### **Context**
 [AWS CDK Context values](https://docs.aws.amazon.com/cdk/latest/guide/context.html) are key-value pairs that can be associated with a stack or construct. In this project they are used for some basic information required to deploy the solution. 
 
 The `context` key in the `cdk.json` file is one of the ways that context values can be made available to the CDK app. 
@@ -42,7 +42,7 @@ Here, it is used to get some basic information required to deploy the resources 
 "vpc_cidr": "10.0.0.0/16"
 ```
 
-##### CDK Squid app
+#### **CDK Squid app**
 
 The “main” for the CDK app is the `app.py`. We get the context values defined in the `cdk.json` file
 ```
@@ -73,7 +73,7 @@ The AWS CDK creates an implicit dependency between the VPC stack and these stack
 
 Let's dive a little deeper into the stacks
 
-##### VPC stack
+### **VPC stack**
 The [VPC stack](./squid_app/vpc_stack.py) creates a VPC across 2 AZs, with 2 public and 2 isolated subnets using a high level CDK Construct. We use the `vpc_cidr` context value to define the VPC CIDR.
 
 ```
@@ -95,10 +95,10 @@ ec2.Vpc(self, "vpc",
 ```
 Note that we use `ISOLATED` as do not want NAT Gateways to be provisoned as part of the VPC. The Squid instances will be used as NAT instances.
 
-##### Squid stack
+### **Squid stack**
 The [Squid stack](./squid_app/squid_stack.py) consists of 3 Constructs:
 
-1. SquidAsgConstruct ([`squid_asg_construct.py`](./squid_app/squid_asg_construct.py)): This construct creates the core Squid application. It creates 2 Auto Scaling Groups (ASGs), one in each public subnet, that consist of one Squid instance each, an IAM role to attach to the instances and a S3 bucket to hold Squid configuration files.  
+1. **SquidAsgConstruct** ([`squid_asg_construct.py`](./squid_app/squid_asg_construct.py)): This construct creates the core Squid application. It creates 2 Auto Scaling Groups (ASGs), one in each public subnet, that consist of one Squid instance each, an IAM role to attach to the instances and a S3 bucket to hold Squid configuration files.  
 
 First we create the IAM role using a combination of managed policies and a custom policy
 ```
@@ -251,7 +251,7 @@ core.Tag.add(asg,
 )
 ```
 
-2. SquidMonitoringConstruct ([`squid_monitoring_construct.py`](./squid_app/squid_monitoring_construct.py)): This construct creates the Squid health check Alarms for the ASGs and a SNS topic where notifcations are published when alarm state changes.
+2. **SquidMonitoringConstruct** ([`squid_monitoring_construct.py`](./squid_app/squid_monitoring_construct.py)): This construct creates the Squid health check Alarms for the ASGs and a SNS topic where notifcations are published when alarm state changes.
 
 Create the SNS topic
 
@@ -292,7 +292,7 @@ squid_alarm.add_alarm_action(cw_actions.SnsAction(self.squid_alarm_topic))
 squid_alarm.add_ok_action(cw_actions.SnsAction(self.squid_alarm_topic))
 ```
 
-3. SquidLambdaConstruct ([`squid_lambda_construct.py`](./squid_app/squid_lambda_construct.py)): This construct creates the Lambda function that is triggered when the alarm state changes and the IAM role assumed by Lambda to execute this function.
+3. **SquidLambdaConstruct** ([`squid_lambda_construct.py`](./squid_app/squid_lambda_construct.py)): This construct creates the Lambda function that is triggered when the alarm state changes and the IAM role assumed by Lambda to execute this function.
 
 Similar to the IAM role created for the instances in the ASGs, we create an IAM role required for Lambda.
 
@@ -355,7 +355,7 @@ Also, Lambda must be subscribed to the SNS Topic.
 squid_alarm_topic.add_subscription(sns_subscriptions.LambdaSubscription(squid_alarm_lambda))
 ```
 
-##### Test Instance stack
+### **Test Instance stack**
 The [Test Instance](./squid_app/test_instance_stack.py) stack creates a single EC2 instance in the Isolated subnet and an IAM role attached to the instance.
 
 The IAM role has a single AWS Managed policy attached to it that allows access to this instance from AWS Systems Manager Session Manager
