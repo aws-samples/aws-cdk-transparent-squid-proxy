@@ -1,9 +1,9 @@
 
 # AWS CDK Python project to deploy DNS filtering with Squid
 
-This [AWS CDK](https://aws.amazon.com/cdk/) project deploys [Squid](http://www.squid-cache.org/) proxy instances to implement a “transparent proxy” that can restrict both HTTP and HTTPS outbound traffic to a given set of Internet domains, while being fully transparent for instances in the private subnet. 
+This [AWS Cloud Development Kit (CDK)](https://aws.amazon.com/cdk/) project deploys [Squid](http://www.squid-cache.org/) proxy instances to implement a “transparent proxy” that can restrict both HTTP and HTTPS outbound traffic to a given set of Internet domains, while being fully transparent for instances in the private subnet. 
 
->This project builds the soultion as described in the AWS Security blog: [How to add DNS filtering to your NAT instance with Squid](https://aws.amazon.com/blogs/security/how-to-add-dns-filtering-to-your-nat-instance-with-squid/).
+>This project builds the solution as described in the AWS Security blog: [How to add DNS filtering to your NAT instance with Squid](https://aws.amazon.com/blogs/security/how-to-add-dns-filtering-to-your-nat-instance-with-squid/) and focuses on AWS CDK implementation. 
 
 #### Architecture
 In summary, the CDK project deploys a VPC with 2 public and 2 private subnets across 2 availability zones. Squid proxy instances in the public subnets intercept HTTP/S traffic and then initiate a connection with the destination through the Internet gateway. A test EC2 instance is provisioned in one private subnet
