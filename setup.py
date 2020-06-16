@@ -1,7 +1,7 @@
 import setuptools
 
 
-with open("README.md") as fp:
+with open("README.md", encoding="utf8", errors='ignore') as fp:
     long_description = fp.read()
 
 
@@ -30,7 +30,7 @@ setuptools.setup(
         "aws_cdk.aws_cloudwatch",
         "aws_cdk.aws_cloudwatch_actions",
         "aws_cdk.aws_sns",
-        "aws_cdk.aws_sns_subscriptions",
+        "aws_cdk.aws_sns_subscriptions"
     ],
 
     python_requires=">=3.6",

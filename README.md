@@ -393,6 +393,10 @@ Pre-requisites:
 -	[AWS CDK](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html)
 -	[Git](http://git-scm.com/downloads)
 
+Ensure that the CDK CLI is upgrded to latest version
+```
+npm -g install aws-cdk
+```
 
 ### 1: Clone the Git repository
 ```
@@ -426,6 +430,12 @@ Note that the `cdk.json` also states which Python command to use. Depending on y
 ```
 $ python -m venv .env
 $ source .env/bin/activate
+
+# Windows Command Prompt
+.env\Scripts\activate.bat
+
+# Windows PowerShell
+.env\Scripts\Activate.ps1
 ```
 
 ### 4. Install dependencies
