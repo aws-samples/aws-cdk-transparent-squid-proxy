@@ -320,7 +320,7 @@ lambda_iam_role.add_to_policy(statement= iam.PolicyStatement(effect=iam.Effect.A
 )
 ```
 
-Then, we create the Lambda function. The ARN of the SNS Topic created in the Monitoring construct is used as an environment variable for the Lambda function.
+Then, we create the Lambda function. 
 
 ```
 squid_alarm_lambda = _lambda.Function(self, "alarm-function",
@@ -328,32 +328,28 @@ squid_alarm_lambda = _lambda.Function(self, "alarm-function",
    handler="lambda-handler.handler",
    code=_lambda.Code.asset("./squid_app/squid_config_files/lambda"),
    role=lambda_iam_role,
-   environment={"TOPIC_ARN":squid_alarm_topic.topic_arn},
    timeout=core.Duration.seconds(60)
 )
 ```
 
-The Lambda function code is located: `./squid_app/squid_config_files/lambda/lambda-handler.py`. It parses the SNS event to identify the ASG that published the message and if the Alarm state is `ALARM` or `OK`. 
-
-If the state is `ALARM`, the function will mark the instance as unhealthy and update the route table of the privat subnets of the affected AZ to redirect the traffic to a healthy Squid instance. 
-
-If the state is `OK`, the function will complete the Auto Scaling Lifycle Hook action as complete which marks the instance as healthy and then update the route table of the privat subnets to route the traffic via the Squid instance in the same AZ. 
-
-Permissions have to be provided for the SNS Topic to invoke the Lmabda function.
+A separate method `add_sns_subscription` is part of this construct. In this method the ARN of the SNS Topic created in the Monitoring construct is added as an environment variable for the Lambda function. Permissions are added for the SNS Topic to invoke the Lambda function. Also, the Lambda function is subscribed to the SNS Topic.
 
 ```
-squid_alarm_lambda.add_permission("squid-lambda-permission",
+lambda_function.add_environment(key="TOPIC_ARN", value = squid_alarm_topic.topic_arn)
+lambda_function.add_permission("squid-lambda-permission",
    principal=iam.ServicePrincipal("sns.amazonaws.com"),
    action='lambda:InvokeFunction',
    source_arn=squid_alarm_topic.topic_arn
 )
+squid_alarm_topic.add_subscription(sns_subscriptions.LambdaSubscription(lambda_function))
 ```
 
-Also, Lambda must be subscribed to the SNS Topic.
+The Lambda function code is located: `./squid_app/squid_config_files/lambda/lambda-handler.py`. It parses the SNS event to identify the ASG that published the message and if the Alarm state is `ALARM` or `OK`. 
 
-```
-squid_alarm_topic.add_subscription(sns_subscriptions.LambdaSubscription(squid_alarm_lambda))
-```
+If the state is `ALARM`, the function will mark the instance as unhealthy and update the route table of the private subnets of the affected AZ to redirect the traffic to a healthy Squid instance. 
+
+If the state is `OK`, the function will complete the Auto Scaling Lifycle Hook action as complete which marks the instance as healthy and then update the route table of the private subnets to route the traffic via the Squid instance in the same AZ. 
+
 
 ### **Test Instance stack**
 The [Test Instance](./squid_app/test_instance_stack.py) stack creates a single EC2 instance in the Isolated subnet and an IAM role attached to the instance.

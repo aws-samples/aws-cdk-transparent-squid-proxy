@@ -8,7 +8,7 @@ from aws_cdk import (
 
 
 class SquidLambdaConstruct(core.Construct):
-    def __init__(self, scope: core.Construct, id: str, squid_alarm_topic: sns.Topic) -> None:
+    def __init__(self, scope: core.Construct, id: str) -> None:
         super().__init__(scope, id)
         
         # Create IAM role for Lambda
@@ -34,17 +34,22 @@ class SquidLambdaConstruct(core.Construct):
         )
     
         # Create a Lambda function that is triggered when the Squid Alarm state changes
-        squid_alarm_lambda = _lambda.Function(self, "alarm-function",
+        self.squid_alarm_lambda_function = _lambda.Function(self, "alarm-function",
                                     runtime=_lambda.Runtime.PYTHON_3_8,
                                     handler="lambda-handler.handler",
                                     code=_lambda.Code.asset("./squid_app/squid_config_files/lambda"),
                                     role=lambda_iam_role,
-                                    environment={"TOPIC_ARN":squid_alarm_topic.topic_arn},
                                     timeout=core.Duration.seconds(60)
                                 )
-        squid_alarm_lambda.add_permission("squid-lambda-permission",
+
+    def add_sns_subscription (self,
+        lambda_function: _lambda.Function,
+        squid_alarm_topic: sns.Topic
+    ):
+        lambda_function.add_environment(key="TOPIC_ARN", value = squid_alarm_topic.topic_arn)
+        lambda_function.add_permission("squid-lambda-permission",
             principal=iam.ServicePrincipal("sns.amazonaws.com"),
             action='lambda:InvokeFunction',
             source_arn=squid_alarm_topic.topic_arn
         )
-        squid_alarm_topic.add_subscription(sns_subscriptions.LambdaSubscription(squid_alarm_lambda))
+        squid_alarm_topic.add_subscription(sns_subscriptions.LambdaSubscription(lambda_function))

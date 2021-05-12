@@ -1,6 +1,9 @@
 from aws_cdk import (
     core,
-    aws_ec2 as ec2
+    aws_ec2 as ec2,
+    aws_lambda as _lambda,
+    aws_sns_subscriptions as sns_subscriptions,
+    aws_sns as sns
 )
 
 from squid_app.squid_asg_construct import SquidAsgConstruct
@@ -21,14 +24,18 @@ class SquidStack(core.Stack):
         
         asgs = SquidAsgConstruct(self,"squid-asgs", vpc=vpc, region=self.region)
 
+        # Create the Lambda components
+        #  1. IAM role for Lambda to assume
+        #  2. Lambda function that is triggered when the alarm state changes 
+
+        lambda_function = SquidLambdaConstruct(self,"squid-lambda")
+
         # Create the mmonitoring components
         #  1. Metrics and alarms for each ASG
         #  2. SNS topic where change in alarm state is published 
 
         monitoring = SquidMonitoringConstruct(self,"squid-monitoring", squid_asgs=asgs.squid_asgs)
+        monitoring.node.add_dependency(lambda_function)
 
-        # Create the Lambda components
-        #  1. IAM role for Lambda to assume
-        #  2. Lambda function that is triggered when the alarm state changes 
-
-        SquidLambdaConstruct(self,"squid-lambda",squid_alarm_topic=monitoring.squid_alarm_topic)
+        # Add SNS subscription to tie the Lambda and CloudWatch alarm 
+        lambda_function.add_sns_subscription(lambda_function=lambda_function.squid_alarm_lambda_function, squid_alarm_topic=monitoring.squid_alarm_topic)
