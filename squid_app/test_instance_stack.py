@@ -19,10 +19,11 @@ class TestInstanceStack(core.Stack):
 
         # Create a role for the instance and attach the SSM Managed Policy to this role.
         instance_role = iam.Role(self, "test-instance-SSM-role", 
-            assumed_by=iam.ServicePrincipal("ec2.amazonaws.com")
+            assumed_by=iam.ServicePrincipal("ec2.amazonaws.com"),
+            managed_policies=[
+                iam.ManagedPolicy.from_aws_managed_policy_name("CloudWatchAgentServerPolicy"),
+                iam.ManagedPolicy.from_aws_managed_policy_name("AmazonSSMManagedInstanceCore")]
         )
-
-        instance_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AmazonEC2RoleforSSM"))
 
         # Create a test instance in any available private subnet allowing all outbound connections. No inbound connections allowed.
         instance = ec2.Instance(self, "test-instance",

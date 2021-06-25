@@ -17,7 +17,7 @@ class SquidAsgConstruct(core.Construct):
         squid_iam_role = iam.Role(self,"squid-role", 
           assumed_by=iam.ServicePrincipal("ec2.amazonaws.com"),
           managed_policies=[iam.ManagedPolicy.from_aws_managed_policy_name("CloudWatchAgentServerPolicy"),
-          iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AmazonEC2RoleforSSM")]
+          iam.ManagedPolicy.from_aws_managed_policy_name("AmazonSSMManagedInstanceCore")]
         )
         
         # Add policy to allow EC2 update instance attributes
@@ -143,7 +143,7 @@ class SquidAsgConstruct(core.Construct):
                         route_table_ids=subnet.route_table.route_table_id
                 
                 # Tag the ASG with route table ids
-                core.Tag.add(asg,
+                core.Tags.of(asg).add(
                         key='RouteTableIds',
                         value=route_table_ids,
                         apply_to_launched_instances=False

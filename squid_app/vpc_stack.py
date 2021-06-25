@@ -12,6 +12,8 @@ class VPCStack(core.Stack):
         self.vpc = ec2.Vpc(self, "vpc",
             max_azs=2,
             cidr=vpc_cidr,
+            gateway_endpoints={ "S3": 
+                ec2.GatewayVpcEndpointOptions(service=ec2.GatewayVpcEndpointAwsService.S3) },
             subnet_configuration=[ec2.SubnetConfiguration(
                 subnet_type=ec2.SubnetType.PUBLIC,
                 name="Public",
@@ -24,5 +26,19 @@ class VPCStack(core.Stack):
                 )
             ]
         )
+        # Add SSM VPC Endpoints to allow SSM communication to the test-instance.
+        vpce_ssm = self.vpc.add_interface_endpoint("SSMvpce", 
+            service=ec2.InterfaceVpcEndpointAwsService.SSM
+        )
+        vpce_ssmmsg = self.vpc.add_interface_endpoint("SSMMSGvpce", 
+            service=ec2.InterfaceVpcEndpointAwsService.SSM_MESSAGES
+        )
+        vpce_cwlogs = self.vpc.add_interface_endpoint("CWLOGSvpce", 
+            service=ec2.InterfaceVpcEndpointAwsService.CLOUDWATCH_LOGS
+        )
+        # this is a workaround to remove the incorrect auto-added tag (VPC name) to vpc endpoint children (security groups)
+        for vpce in [vpce_ssm, vpce_ssmmsg, vpce_cwlogs]:
+            core.Tags.of(vpce).remove("Name")
+
         core.CfnOutput(self, "output-vpc-id",
                        value=self.vpc.vpc_id)
