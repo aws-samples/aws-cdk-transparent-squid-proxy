@@ -35,7 +35,6 @@ class SquidStack(core.Stack):
         #  2. SNS topic where change in alarm state is published 
 
         monitoring = SquidMonitoringConstruct(self,"squid-monitoring", squid_asgs=asgs.squid_asgs)
-        monitoring.node.add_dependency(lambda_function)
 
         # Add SNS subscription to tie the Lambda and CloudWatch alarm 
         lambda_function.add_sns_subscription(lambda_function=lambda_function.squid_alarm_lambda_function, squid_alarm_topic=monitoring.squid_alarm_topic)
